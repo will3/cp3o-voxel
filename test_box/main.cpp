@@ -9,10 +9,6 @@
 #include "StandardMaterial.h"
 #include "Mesh.h"
 #include "ShaderMaterial.h"
-#include "Terrain.h"
-#include "CameraControl.h"
-#include <thread>
-#include <chrono>
 
 int main() {
     Window *window = new Window();
@@ -27,31 +23,20 @@ int main() {
     camera->position.z = 10;
     
     Runner *runner = new Runner();
+    BoxGeometry *geometry = new BoxGeometry(1);
 
-    Terrain *terrain = new Terrain();
-    terrain->scene = scene;
-    runner->add(terrain);
+    StandardMaterial *material = new StandardMaterial();
     
-    CameraControl *cameraControl = new CameraControl();
-    cameraControl->window = window;
-    cameraControl->camera = camera;
-    runner->add(cameraControl);
+    Mesh *mesh = new Mesh(geometry, material);
+    scene->add(mesh);
 
-    double minInterval = 1 / 60.0;
     do {
-        double startTime = glfwGetTime();
         glfwPollEvents();
         
         runner->update();
         renderer->render(scene, camera);
         
         glfwSwapBuffers(window->window);
-        double endTime = glfwGetTime();
-        double delta = endTime - startTime;
-        if (delta < minInterval) {
-            int milliseconds = (minInterval - delta) * 1000;
-            std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-        }
     } while(!window->shouldClose());
     
     window->hide();
