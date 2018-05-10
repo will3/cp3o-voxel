@@ -4,6 +4,10 @@ set(OPENGL_LIBRARY
 	${GLFW_LIBRARIES}
 )
 
+add_definitions(
+	-DGLEW_STATIC
+)
+
 ### GLFW ###
 
 add_subdirectory (glfw)

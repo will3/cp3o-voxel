@@ -4,6 +4,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set (CMAKE_CXX_STANDARD 11)
 
+add_definitions(
+	-DGLEW_STATIC
+)
+
 add_subdirectory(external)
 
 include_directories(
