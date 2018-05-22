@@ -76,28 +76,11 @@ void Terrain::drawChunk(Coord3 origin) {
 
 	VoxelChunk *chunk = bsp.getChunk(offset.i, offset.j, offset.k);
 
-	getSolidFuncType getSolid = [=](Coord3 coord) {
-		if (coord.i < 0 || coord.i >= CHUNK_SIZE ||
-			coord.j < 0 || coord.j >= CHUNK_SIZE ||
-			coord.k < 0 || coord.k >= CHUNK_SIZE) {
-			Coord3 chunksCoord = coord + offset;
-			int v = bsp.get(chunksCoord.i, chunksCoord.j, chunksCoord.k);
-			return v > 0;
-		}
-
-		if (chunk == 0) {
-			return false;
-		}
-
-		int v = chunk->getLocal(coord.i, coord.j, coord.k);
-		return v > 0;
-	};
-
 	getColorFuncType getColor = [](Coord3 coord) {
 		return glm::ivec3(255, 255, 255);
 	};
 
-    VoxelGeometry *geometry = Mesher::mesh(getSolid, getColor);
+    VoxelGeometry *geometry = Mesher::mesh(chunk, &bsp, getColor);
     auto *material = new ShaderMaterial(new VoxelShader());
     auto *mesh = new Mesh(geometry, material);
     mesh->position = glm::vec3(offset.i, offset.j, offset.k);
