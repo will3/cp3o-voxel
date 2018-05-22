@@ -1,36 +1,36 @@
 
 #include "Terrain.h"
 #include "VoxelBSP.h"
+#include "Field3.h"
 
 #define color_light_gray glm::ivec3(194, 195, 199)
 #define color_dark_green glm::ivec3(0, 135, 81)
 
-bool Terrain::getSolid(int i, int j, int k) {
+float Terrain::getDensity(int i, int j, int k) {
     float gradient = 1 - j / (float)maxHeight;
 
-    float solid = gradient + heightNoise.GetSimplexFractal(i, j * heightScale, k);
-    return solid > 0.5;
+    return gradient + heightNoise.GetSimplexFractal(i, j * heightScale, k);
 }
 
 void Terrain::start() {
-	VoxelBSP bsp;
-	bsp.set(0, 0, 0, 1);
-	int result = bsp.get(0, 0, 0);
-	if (result != 1) {
-		throw std::runtime_error("oh no");
-	}
+	//VoxelBSP bsp;
+	//bsp.set(0, 0, 0, 1);
+	//int result = bsp.get(0, 0, 0);
+	//if (result != 1) {
+	//	throw std::runtime_error("oh no");
+	//}
 
-	bsp.set(-1, -1, -1, 2);
-	result = bsp.get(-1, -1, -1);
-	if (result != 2) {
-		throw std::runtime_error("oh no");
-	}
+	//bsp.set(-1, -1, -1, 2);
+	//result = bsp.get(-1, -1, -1);
+	//if (result != 2) {
+	//	throw std::runtime_error("oh no");
+	//}
 
-	bsp.set(-33, -100, -9999, 3);
-	result = bsp.get(-33, -100, -9999);
-	if (result != 3) {
-		throw std::runtime_error("oh no");
-	}
+	//bsp.set(-33, -100, -9999, 3);
+	//result = bsp.get(-33, -100, -9999);
+	//if (result != 3) {
+	//	throw std::runtime_error("oh no");
+	//}
 }
 
 void Terrain::update() {
@@ -72,7 +72,7 @@ void Terrain::drawChunk(Coord3 origin) {
 
 	tc->dirty = false;
 
-	Coord3 offset = origin * CHUNK_SIZE;
+	Coord3 offset = origin * bsp.size;
 
 	VoxelChunk *chunk = bsp.getChunk(offset.i, offset.j, offset.k);
 
@@ -90,6 +90,7 @@ void Terrain::drawChunk(Coord3 origin) {
 void Terrain::createChunk(Coord3 &origin)
 {
 	TerrianChunk *tc = get_or_create_chunk(origin);
+	int size = bsp.size;
 
 	if (tc->initialized) {
 		return;
@@ -97,13 +98,30 @@ void Terrain::createChunk(Coord3 &origin)
 
 	tc->initialized = true;
 
-	Coord3 offset = origin * CHUNK_SIZE;
+	Coord3 offset = origin * size;
+
+	int sampleSize = chunkSize / 2 + 1;
+
+	Field3<float> densityField(sampleSize);
+
+	for (int i = 0; i < sampleSize; i++) {
+		for (int j = 0; j < sampleSize; j++) {
+			for (int k = 0; k < sampleSize; k++) {
+				float density = getDensity(i * 2 + offset.i, j * 2 + offset.j, k * 2 + offset.k);
+				densityField.set(i, j, k, density);
+			}
+		}
+	}
+
+	bsp.set(offset[0], offset[1], offset[2], 0); // Creates the chunk
+	VoxelChunk *chunk = bsp.getChunk(offset.i, offset.j, offset.k);
 
 	for (int i = 0; i < chunkSize; i++) {
 		for (int j = 0; j < chunkSize; j++) {
 			for (int k = 0; k < chunkSize; k++) {
-				bool solid = getSolid(i + offset.i, j + offset.j, k + offset.k);
-				bsp.set(i + offset[0], j + offset[1], k + offset[2], solid ? 1 : 0);
+				float density = densityField.sample((float)i, (float)j, (float)k, 2.0);
+				bool solid = density > 0.5;
+				chunk->set(i + offset[0], j + offset[1], k + offset[2], solid ? 1 : 0);
 			}
 		}
 	}

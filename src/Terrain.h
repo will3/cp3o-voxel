@@ -36,7 +36,7 @@ public:
 
     Scene *scene;
 
-	bool getSolid(int i, int j, int k);
+	float getDensity(int i, int j, int k);
 
 	void start() override;
 	void update() override;
