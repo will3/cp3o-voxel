@@ -13,9 +13,35 @@
 #include "CameraControl.h"
 #include <thread>
 #include <chrono>
+//#include "CL\cl.h"
 
 int main() {
-    Window *window = new Window();
+	//cl_uint platformIdCount = 0;
+	//clGetPlatformIDs(0, nullptr, &platformIdCount);
+	//std::vector<cl_platform_id> platformIds(platformIdCount);
+	//clGetPlatformIDs(platformIdCount, platformIds.data(), nullptr);
+
+	//cl_uint deviceIdCount = 0;
+	//clGetDeviceIDs(platformIds[0], CL_DEVICE_TYPE_ALL, 0, nullptr,
+	//	&deviceIdCount);
+	//std::vector<cl_device_id> deviceIds(deviceIdCount);
+	//clGetDeviceIDs(platformIds[0], CL_DEVICE_TYPE_ALL, deviceIdCount,
+	//	deviceIds.data(), nullptr);
+
+	//const cl_context_properties contextProperties[] =
+	//{
+	//	CL_CONTEXT_PLATFORM,
+	//	reinterpret_cast<cl_context_properties> (platformIds[0]),
+	//	0, 0
+	//};
+
+	//cl_int error;
+	//cl_context context = clCreateContext(
+	//	contextProperties, deviceIdCount,
+	//	deviceIds.data(), nullptr,
+	//	nullptr, &error);
+
+	Window *window = new Window();
     window->show(1024, 768);
     
     Renderer *renderer = new Renderer();

@@ -17,10 +17,11 @@ include_directories(
 	external/cp3o/src/postprocessing
 	external/cp3o/src/voxel
 	external/FastNoise
-
 	external/glew-2.1.0/include/
 	external/glm
 	external/glfw/include/
+	external/
+	external/opencl/include
 	src
 )
 
@@ -28,7 +29,9 @@ set(ALL_LIBS
 	${OPENGL_LIBRARY}
 	GLEW
 	glfw
-	CP3O)
+	CP3O
+	${PROJECT_SOURCE_DIR}/external/opencl/OpenCL.lib
+	)
 
 file(GLOB SRC_FILES 
 	src/*.* 
