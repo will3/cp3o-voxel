@@ -13,6 +13,7 @@
 class TerrianChunk {
 public:
     bool dirty = true;
+	bool initialized = false;
 };
 
 class Terrain : public Entity {
@@ -21,15 +22,21 @@ private:
     std::map<Coord3, TerrianChunk *> map;
     int chunkSize = 32;
     Chunks<Voxel> *chunks = new Chunks<Voxel>();
-    
+	void drawChunk(Coord3 origin);
+	void createChunk(Coord3 &origin);
+	TerrianChunk* get_or_create_chunk(Coord3 & origin);
+	void drawChunks();
+
 public:
-    int maxHeight = 128;
+    int maxHeight = 256;
     float heightScale = 0.4;
+	int maxChunkY = 8;
+	int drawDis = 4;
+
     Scene *scene;
 
 	Voxel get(int i, int j, int k);
 
     void update() override;
-    
-    void updateChunk(Coord3 origin);
+	void createChunks();
 };
