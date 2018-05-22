@@ -9,6 +9,7 @@
 #include "VoxelShader.h"
 #include "ShaderMaterial.h"
 #include "Mesh.h"
+#include "VoxelBSP.h"
 
 class TerrianChunk {
 public:
@@ -18,10 +19,10 @@ public:
 
 class Terrain : public Entity {
 private:
+	VoxelBSP bsp;
     FastNoise heightNoise;
     std::map<Coord3, TerrianChunk *> map;
     int chunkSize = 32;
-    Chunks<Voxel> *chunks = new Chunks<Voxel>();
 	void drawChunk(Coord3 origin);
 	void createChunk(Coord3 &origin);
 	TerrianChunk* get_or_create_chunk(Coord3 & origin);
@@ -35,8 +36,9 @@ public:
 
     Scene *scene;
 
-	Voxel get(int i, int j, int k);
+	bool getSolid(int i, int j, int k);
 
-    void update() override;
+	void start() override;
+	void update() override;
 	void createChunks();
 };

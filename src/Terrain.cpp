@@ -1,18 +1,36 @@
 
 #include "Terrain.h"
+#include "VoxelBSP.h"
 
 #define color_light_gray glm::ivec3(194, 195, 199)
 #define color_dark_green glm::ivec3(0, 135, 81)
 
-Voxel Terrain::get(int i, int j, int k) {
+bool Terrain::getSolid(int i, int j, int k) {
     float gradient = 1 - j / (float)maxHeight;
 
-    Voxel v{};
     float solid = gradient + heightNoise.GetSimplexFractal(i, j * heightScale, k);
-    v.solid = solid > 0.5;
-    v.color = color_dark_green;
+    return solid > 0.5;
+}
 
-    return v;
+void Terrain::start() {
+	VoxelBSP bsp;
+	bsp.set(0, 0, 0, 1);
+	int result = bsp.get(0, 0, 0);
+	if (result != 1) {
+		throw std::runtime_error("oh no");
+	}
+
+	bsp.set(-1, -1, -1, 2);
+	result = bsp.get(-1, -1, -1);
+	if (result != 2) {
+		throw std::runtime_error("oh no");
+	}
+
+	bsp.set(-33, -100, -9999, 3);
+	result = bsp.get(-33, -100, -9999);
+	if (result != 3) {
+		throw std::runtime_error("oh no");
+	}
 }
 
 void Terrain::update() {
@@ -54,9 +72,32 @@ void Terrain::drawChunk(Coord3 origin) {
 
 	tc->dirty = false;
 
-	auto chunk = chunks->get_chunk(origin);
-	auto offset = chunk->get_offset();
-    VoxelGeometry *geometry = Mesher::mesh(chunk, chunks);
+	Coord3 offset = origin * CHUNK_SIZE;
+
+	VoxelChunk *chunk = bsp.getChunk(offset.i, offset.j, offset.k);
+
+	getSolidFuncType getSolid = [=](Coord3 coord) {
+		if (coord.i < 0 || coord.i >= CHUNK_SIZE ||
+			coord.j < 0 || coord.j >= CHUNK_SIZE ||
+			coord.k < 0 || coord.k >= CHUNK_SIZE) {
+			Coord3 chunksCoord = coord + offset;
+			int v = bsp.get(chunksCoord.i, chunksCoord.j, chunksCoord.k);
+			return v > 0;
+		}
+
+		if (chunk == 0) {
+			return false;
+		}
+
+		int v = chunk->getLocal(coord.i, coord.j, coord.k);
+		return v > 0;
+	};
+
+	getColorFuncType getColor = [](Coord3 coord) {
+		return glm::ivec3(255, 255, 255);
+	};
+
+    VoxelGeometry *geometry = Mesher::mesh(getSolid, getColor);
     auto *material = new ShaderMaterial(new VoxelShader());
     auto *mesh = new Mesh(geometry, material);
     mesh->position = glm::vec3(offset.i, offset.j, offset.k);
@@ -73,15 +114,13 @@ void Terrain::createChunk(Coord3 &origin)
 
 	tc->initialized = true;
 
-	Chunk<Voxel> *chunk = chunks->get_or_create_chunk(origin);
-	Coord3 offset = chunk->get_offset();
+	Coord3 offset = origin * CHUNK_SIZE;
 
 	for (int i = 0; i < chunkSize; i++) {
 		for (int j = 0; j < chunkSize; j++) {
 			for (int k = 0; k < chunkSize; k++) {
-				Voxel v = get(i + offset.i, j + offset.j, k + offset.k);
-				Coord3 coord = Coord3(i, j, k);
-				chunk->set(coord, v);
+				bool solid = getSolid(i + offset.i, j + offset.j, k + offset.k);
+				bsp.set(i + offset[0], j + offset[1], k + offset[2], solid ? 1 : 0);
 			}
 		}
 	}
