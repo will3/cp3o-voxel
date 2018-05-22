@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Entity.h"
 #include "Window.h"
+#include "Runner.h"
 
 # define M_PI           3.14159265358979323846 
 

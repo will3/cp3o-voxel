@@ -10,6 +10,7 @@
 #include "ShaderMaterial.h"
 #include "Mesh.h"
 #include "VoxelBSP.h"
+#include "CameraControl.h"
 
 class TerrianChunk {
 public:
@@ -33,6 +34,8 @@ public:
     float heightScale = 0.4;
 	int maxChunkY = 6;
 	int drawDis = 4;
+	CameraControl *cameraControl = 0;
+	Coord3 cameraOrigin = Coord3();
 
     Scene *scene;
 

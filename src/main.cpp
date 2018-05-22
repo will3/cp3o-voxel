@@ -62,6 +62,7 @@ int main() {
     cameraControl->window = window;
     cameraControl->camera = camera;
     runner->add(cameraControl);
+	terrain->cameraControl = cameraControl;
 
     double minInterval = 1 / 60.0;
     do {

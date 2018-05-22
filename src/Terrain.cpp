@@ -13,51 +13,49 @@ float Terrain::getDensity(int i, int j, int k) {
 }
 
 void Terrain::start() {
-	//VoxelBSP bsp;
-	//bsp.set(0, 0, 0, 1);
-	//int result = bsp.get(0, 0, 0);
-	//if (result != 1) {
-	//	throw std::runtime_error("oh no");
-	//}
 
-	//bsp.set(-1, -1, -1, 2);
-	//result = bsp.get(-1, -1, -1);
-	//if (result != 2) {
-	//	throw std::runtime_error("oh no");
-	//}
+}
 
-	//bsp.set(-33, -100, -9999, 3);
-	//result = bsp.get(-33, -100, -9999);
-	//if (result != 3) {
-	//	throw std::runtime_error("oh no");
-	//}
+int terrain_fast_floor(int x, int y) {
+	return x / y - (x % y < 0);
 }
 
 void Terrain::update() {
+	if (cameraControl != 0) {
+		int chunkSize = bsp.size;
+		cameraOrigin = Coord3(
+			terrain_fast_floor(cameraControl->position.x, chunkSize),
+			0,
+			terrain_fast_floor(cameraControl->position.z, chunkSize));
+	}
+
 	createChunks();
 	drawChunks();
 }
 
 void Terrain::createChunks()
 {
+	
+
 	int size = drawDis + 1;
 	int height = maxChunkY;
 	for (int i = -size; i <= size; i++) {
 		for (int k = -size; k <= size; k++) {
 			for (int j = 0; j < height; j++) {
-				createChunk(Coord3(i, j, k));
+				createChunk(Coord3(i, j, k) + cameraOrigin);
 			}
 		}
 	}
 }
 
 void Terrain::drawChunks() {
+	int chunkSize = bsp.size;
 	int size = drawDis;
 	int height = maxChunkY;
 	for (int i = -size; i <= size; i++) {
 		for (int k = -size; k <= size; k++) {
 			for (int j = 0; j < height; j++) {
-				drawChunk(Coord3(i, j, k));
+				drawChunk(Coord3(i, j, k) + cameraOrigin);
 			}
 		}
 	}
