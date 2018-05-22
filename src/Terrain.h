@@ -29,9 +29,9 @@ private:
 	void drawChunks();
 
 public:
-    int maxHeight = 256;
+    int maxHeight = 128;
     float heightScale = 0.4;
-	int maxChunkY = 8;
+	int maxChunkY = 6;
 	int drawDis = 4;
 
     Scene *scene;

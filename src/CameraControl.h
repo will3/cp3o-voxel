@@ -6,6 +6,8 @@
 #include "Entity.h"
 #include "Window.h"
 
+# define M_PI           3.14159265358979323846 
+
 using namespace glm;
 
 class CameraControl : public Entity {
@@ -14,9 +16,10 @@ public:
 	Camera *camera = 0;
 
 	float yaw = 0;
-	float pitch = 0;
+	float pitch = -M_PI / 4;
+
 	float mouseSpeed = 0.001f;
-	glm::vec3 position = glm::vec3(0, 0, 0);
+	glm::vec3 position = glm::vec3(0, 256, 0);
 	float speed = 100;
 	bool mouseDown = false;
 	float lastMouseX, lastMouseY;
